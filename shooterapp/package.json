@@ -1,0 +1,16 @@
+{
+  "name": "shooterapp",
+  "version": "1.0.0",
+  "description": "Shooter game made in socket.io, node.js, and p5.js",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Zafir Hasan",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "socket.io": "^2.1.1"
+  }
+}

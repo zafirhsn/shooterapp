@@ -20,6 +20,7 @@ app.get('/', (req, res) => {
 });
 
 var playerArray = {};
+var bulletsArray = [];
 
 io.on('connection', (socket)=> {
   console.log('a user connected');
@@ -55,6 +56,22 @@ io.on('connection', (socket)=> {
     // playerArray[playerIndex] = {};
     // socket.broadcast.emit('exitPlayer', { exitIndex: playerIndex } );
   });
+
+  socket.on('shoot-bullet', function(data){
+    var new_bullet = data;
+    bulletsArray.push(new_bullet);
+
+    socket.broadcast.emit('bulletUpdate', bulletsArray);
+  })
+
+  socket.on("updateMyBullets", (data, index) =>{
+    bulletsArray[index].xpos = data.xpos;
+    bulletsArray[index].ypos = data.ypos;
+    bulletsArray[index].color = data.color;
+
+    socket.broadcast.emit('updateBullets', bulletsArray[index], index);
+
+  })
 
 });
 

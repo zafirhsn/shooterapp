@@ -1,6 +1,7 @@
 var socket;
 var SOCKET_ID; 
 var playerArray = {};
+var bulletsArray =[];
 var PLAYER_INDEX;
 var readyFlag = false;
 
@@ -81,6 +82,20 @@ function update() {
   // console.log(playerArray[0]);
   playerArray[SOCKET_ID].update();
   socket.emit('updateMyPlayer', playerArray[SOCKET_ID]);
+
+
+  socket.on('updateBullets', (data, index) =>{
+    console.log("BULLETS: " + data)
+    if(data != undefined){
+    bulletsArray[index].xpos = data.xpos;
+    bulletsArray[index].ypos = data.ypos;
+    bulletsArray[index].color = data.color;
+  }
+  })
+  for(let j = 0; j < bulletsArray.length; j++){
+    bulletsArray[j].update();
+    socket.emit('updateMyBullets', bulletsArray[j], j);
+  } 
 }
 
 function draw() {
@@ -93,13 +108,12 @@ function draw() {
   for (var key in playerArray) {
     if (playerArray[key] !== {}) { //display Players
       playerArray[key].display();
-       if(playerArray[key].bullets.length > 0){ //Display bullets
-        for(let j = 0; j < playerArray[key].bullets.length; j++){
-          playerArray[key].bullets[j].display();
+       if(bulletsArray.length > 0){ //Display bullets
+        for(let j = 0; j < bulletsArray.length; j++){
+          bulletsArray[j].display();
           for(var otherKey in playerArray) {
-            if(playerArray[key].bullets[j].hits(playerArray[otherKey])){
+            if(bulletsArray[j].hits(playerArray[otherKey])){
               playerArray[otherKey].hit();
-              playerArray[key].bullets.splice(j, 1);
             }
           }
         }
@@ -109,13 +123,17 @@ function draw() {
 }
 
 function mouseCoor() {
-  console.log('x: ' + mouseX + ', y: ' + mouseY);
+  console.log('x: ' + mouseX + ', y: ' + mouseY)
 }
 
 //Make bullet where mouse is clicked
 function mousePressed(){
-    playerArray[SOCKET_ID].bullets.push(new Bullet(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, mouseX, mouseY, playerArray[SOCKET_ID].color)); 
-}
+    let bull = new Bullet(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[SOCKET_ID].color)
+    bulletsArray.push(bull);
+
+    socket.emit('shoot-bullet', bull)
+
+  };
 
 
 

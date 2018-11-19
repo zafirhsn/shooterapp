@@ -6,8 +6,6 @@ function Player(xpos, ypos) {
   this.dead = false;
   this.color = Player.prototype.colorBank[Math.floor(Math.random() * Player.prototype.colorBank.length)];
 
-  this.bullets = [];
-
   this.update = function() {
     if (keyIsDown(LEFT_ARROW)) {
       console.log("Key is down");

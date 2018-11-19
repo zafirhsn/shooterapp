@@ -32,13 +32,13 @@ io.on('connection', (socket)=> {
     playerArray.push(user);
     console.log(playerArray.length);
     socket.broadcast.emit('addedPlayer', user);
-    console.log(user);
   })
 
   // When update given from a client, broadcast to every other client
   socket.on('updateMyPlayer', (data, playerIndex)=> {
     playerArray[playerIndex].xpos = data.xpos;
     playerArray[playerIndex].ypos = data.ypos;
+
     socket.broadcast.emit('updatePlayers', playerArray[playerIndex], playerIndex);
   });
 

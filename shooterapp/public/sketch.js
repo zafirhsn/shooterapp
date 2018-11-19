@@ -62,13 +62,11 @@ function createPlayer(data) {
 function update() {
   socket.on('updatePlayers', (data, playerIndex)=> {
     playerArray[playerIndex].xpos = data.xpos;
-    playerArray[playerIndex].ypos = data.ypos;  
+    playerArray[playerIndex].ypos = data.ypos;
   });
   // console.log(playerArray[0]);
   playerArray[PLAYER_INDEX].update();
   socket.emit('updateMyPlayer', playerArray[PLAYER_INDEX], PLAYER_INDEX);
-
-
 }
 
 function draw() {
@@ -78,8 +76,13 @@ function draw() {
   }
 
   for (let i = 0; i < playerArray.length; i++) {
-    if (playerArray[i] !== {}) {
+    if (playerArray[i] !== {}) { //display Players
       playerArray[i].display();
+       if(playerArray[i].bullets.length > 0){ //Display bullets
+        for(let j = 0; j < playerArray[i].bullets.length; j++){
+          playerArray[i].bullets[j].display();
+        }
+      } 
     }
   }
 }
@@ -87,6 +90,12 @@ function draw() {
 function mouseCoor() {
   console.log('x: ' + mouseX + ', y: ' + mouseY);
 }
+
+//Make bullet where mouse is clicked
+function mousePressed(){
+    playerArray[PLAYER_INDEX].bullets.push(new Bullet(playerArray[PLAYER_INDEX].xpos, playerArray[PLAYER_INDEX].ypos, mouseX, mouseY)); 
+}
+
 
 
 

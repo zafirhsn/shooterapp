@@ -49,7 +49,7 @@ function createPlayer(data) {
   console.log(playerArray.length);
 
   // Creating new player 
-  playerArray.push(new Player(100,100));
+  playerArray.push(new Player(random(100, width), random(100, height)));
   // console.log(playerArray[playerArray.length - 1]);
   console.log('SENDING NEW USER TO SERVER');
   socket.emit('newUser', playerArray[PLAYER_INDEX]);
@@ -81,6 +81,12 @@ function draw() {
        if(playerArray[i].bullets.length > 0){ //Display bullets
         for(let j = 0; j < playerArray[i].bullets.length; j++){
           playerArray[i].bullets[j].display();
+          for(let k = 0; k < playerArray.length; k++) {
+            if(playerArray[i].bullets[j].hits(playerArray[k])){
+              playerArray[k].hit();
+              playerArray[i].bullets.splice(j, 1);
+            }
+          }
         }
       } 
     }
@@ -93,7 +99,7 @@ function mouseCoor() {
 
 //Make bullet where mouse is clicked
 function mousePressed(){
-    playerArray[PLAYER_INDEX].bullets.push(new Bullet(playerArray[PLAYER_INDEX].xpos, playerArray[PLAYER_INDEX].ypos, mouseX, mouseY)); 
+    playerArray[PLAYER_INDEX].bullets.push(new Bullet(playerArray[PLAYER_INDEX].xpos, playerArray[PLAYER_INDEX].ypos, mouseX, mouseY, playerArray[PLAYER_INDEX].color)); 
 }
 
 

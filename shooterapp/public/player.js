@@ -1,6 +1,8 @@
 function Player(xpos, ypos) {
-  this.xpos = xpos;
+  //generates new player randomly on screen
   this.ypos = ypos;
+  this.xpos = xpos; 
+  this.lives = 5;
   this.dead = false;
   this.color = Player.prototype.colorBank[Math.floor(Math.random() * Player.prototype.colorBank.length)];
 
@@ -33,6 +35,15 @@ function Player(xpos, ypos) {
     ellipse(this.xpos, this.ypos, 80, 80);
   }
 
+  this.hit = function() {
+    this.respawn();
+    this.bullets = [];
+  }
+
+  this.respawn = function(){
+    this.xpos = random(100, width);
+    this.ypos = random(100, height);
+  }
 }
 
 Player.prototype.velocity = 1;

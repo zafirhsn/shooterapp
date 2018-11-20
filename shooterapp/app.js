@@ -20,7 +20,6 @@ app.get('/', (req, res) => {
 });
 
 var playerArray = {};
-var bulletsArray = [];
 
 io.on('connection', (socket)=> {
   console.log('a user connected');
@@ -41,6 +40,15 @@ io.on('connection', (socket)=> {
     let userid = socket.id;
     playerArray[userid].xpos = data.xpos;
     playerArray[userid].ypos = data.ypos;
+    for (let i = 0; i < data.bullets.length; i++) {
+      let bulletx = data.bullets[i].xpos;
+      let bullety = data.bullets[i].ypos;
+
+      playerArray[userid].bullets[i].xpos = bulletx;
+      console.log( playerArray[userid].bullets[i]);
+      playerArray[userid].bullets[i].ypos = bullety;
+
+    }
 
     socket.broadcast.emit('updatePlayers', playerArray[userid], userid);
   });
@@ -52,35 +60,26 @@ io.on('connection', (socket)=> {
     socket.broadcast.emit('exitPlayer', userid);
     console.log('A player has exited: ' + userid);
     console.log(Object.keys(playerArray).length);
-    // console.log('User ' + playerIndex + ' has disconnected');
-    // playerArray[playerIndex] = {};
-    // socket.broadcast.emit('exitPlayer', { exitIndex: playerIndex } );
   });
 
-  socket.on('shoot-bullet', function(data){
-    var new_bullet = data;
-    bulletsArray.push(new_bullet);
+  // socket.on('shoot-bullet', function(data){
+  //   var new_bullet = data;
+  //   bulletsArray.push(new_bullet);
 
-    socket.broadcast.emit('bulletUpdate', bulletsArray);
-  })
+  //   socket.broadcast.emit('bulletUpdate', bulletsArray);
+  // })
 
-  socket.on("updateMyBullets", (data, index) =>{
-    bulletsArray[index].xpos = data.xpos;
-    bulletsArray[index].ypos = data.ypos;
-    bulletsArray[index].color = data.color;
+  // socket.on("updateMyBullets", (data, index) =>{
+  //   bulletsArray[index].xpos = data.xpos;
+  //   bulletsArray[index].ypos = data.ypos;
+  //   bulletsArray[index].color = data.color;
 
-    socket.broadcast.emit('updateBullets', bulletsArray[index], index);
+  //   socket.broadcast.emit('updateBullets', bulletsArray[index], index);
 
-  })
+  // })
 
 });
 
-  // console.log(socket.id);
-  // data['users'] += 1;
-  // let dataString = JSON.stringify(data);
-  // fs.writeFile('public/database.JSON', dataString, ()=> {
-  //   console.log(data['users']);
-  // });
 
 http.listen(3000, ()=> {
   console.log("App is listening on port 3000...");

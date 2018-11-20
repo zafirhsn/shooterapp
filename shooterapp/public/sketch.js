@@ -1,7 +1,6 @@
 var socket;
 var SOCKET_ID; 
 var playerArray = {};
-var bulletsArray =[];
 var PLAYER_INDEX;
 var readyFlag = false;
 
@@ -39,6 +38,15 @@ function removePlayer(userid) {
 function addPlayer(user, userid) {
   playerArray[userid] = new Player(user.xpos, user.ypos);
   playerArray[userid].color = user.color;
+
+  for (let i = 0; i < user.bullets.length; i++) {
+    let bulletx = user.bullets[i].xpos;
+    let bullety = user.bullets[i].ypos;
+    let bulletColor = user.bullets[i].color;
+
+    playerArray[userid].bullets.push(new Bullet(bulletx, bullety, bulletColor));
+
+  }
   console.log("ADDED PLAYER");
 }
 
@@ -52,14 +60,19 @@ function createPlayer(data) {
     if (data.playerArray.hasOwnProperty(key)) {
       playerArray[key] = new Player(data.playerArray[key].xpos, data.playerArray[key].ypos);
       playerArray[key].color = data.playerArray[key].color;
+
+      for (let i = 0; i < data.playerArray[key].bullets.length; i++) {
+        let bulletx = data.playerArray[key].bullets[i].xpos;
+        let bullety = data.playerArray[key].bullets[i].ypos; 
+        let bulletColor = data.playerArray[key].bullets[i].color;
+
+        playerArray[key].bullets.push(new Bullet(bulletx, bullety, bulletColor));
+      }
+
       console.log('in for loop ');
       console.log(playerArray[key]);
     }
-    // playerArray.push(new Player(data.playerArray[i].xpos, data.playerArray[i].ypos));
-    // playerArray[playerArray.length-1].color = data.playerArray[i].color;
   }
-
-  PLAYER_INDEX = playerArray.length;
 
   console.log(Object.keys(playerArray).length);
 
@@ -78,24 +91,32 @@ function update() {
   socket.on('updatePlayers', (data, userid)=> {
     playerArray[userid].xpos = data.xpos;
     playerArray[userid].ypos = data.ypos;
+
+    for (let i = 0; i < data.bullets.length; i++) {
+      let bulletx = data.bullets[i].xpos;
+      let bullety = data.bullets[i].ypos;
+
+      playerArray[userid].bullets[i].xpos = bulletx;
+      player[userid].bullets[i].ypos = bullety;
+    }
   });
   // console.log(playerArray[0]);
   playerArray[SOCKET_ID].update();
   socket.emit('updateMyPlayer', playerArray[SOCKET_ID]);
 
 
-  socket.on('updateBullets', (data, index) =>{
-    console.log("BULLETS: " + data)
-    if(data != undefined){
-    bulletsArray[index].xpos = data.xpos;
-    bulletsArray[index].ypos = data.ypos;
-    bulletsArray[index].color = data.color;
-  }
-  })
-  for(let j = 0; j < bulletsArray.length; j++){
-    bulletsArray[j].update();
-    socket.emit('updateMyBullets', bulletsArray[j], j);
-  } 
+  // socket.on('updateBullets', (data, index) =>{
+  //   console.log("BULLETS: " + data)
+  //   if(data != undefined){
+  //   bulletsArray[index].xpos = data.xpos;
+  //   bulletsArray[index].ypos = data.ypos;
+  //   bulletsArray[index].color = data.color;
+  // }
+  // })
+  // for(let j = 0; j < bulletsArray.length; j++){
+  //   bulletsArray[j].update();
+  //   socket.emit('updateMyBullets', bulletsArray[j], j);
+  // } 
 }
 
 function draw() {
@@ -108,40 +129,35 @@ function draw() {
   for (var key in playerArray) {
     if (playerArray[key] !== {}) { //display Players
       playerArray[key].display();
-       if(bulletsArray.length > 0){ //Display bullets
-        for(let j = 0; j < bulletsArray.length; j++){
-          bulletsArray[j].display();
+        for(let i = 0; i < playerArray[key].bullets.length; i++) {
+        playerArray[key].bullets[i].display();
+
           for(var otherKey in playerArray) {
-            if(bulletsArray[j].hits(playerArray[otherKey])){
-              playerArray[otherKey].hit();
+
+            if(playerArray[key].bullets[i].hits(playerArray[otherKey].bullets[i])){
+
+              playerArray[otherKey].bullets[i].hit();
             }
           }
         }
       } 
     }
   }
-}
 
 function mouseCoor() {
   console.log('x: ' + mouseX + ', y: ' + mouseY)
 }
 
+function mousePressed() {
+  return true;
+}
+
 //Make bullet where mouse is clicked
-function mousePressed(){
-    let bull = new Bullet(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[SOCKET_ID].color)
-    bulletsArray.push(bull);
+// function mousePressed(){
+//     let bull = new Bullet(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[SOCKET_ID].color)
+//     bulletsArray.push(bull);
 
-    socket.emit('shoot-bullet', bull)
+//     socket.emit('shoot-bullet', bull)
 
-  };
+//   };
 
-
-
-
-// function drawEllipse(data) {
-//   var numUsers = data.users;
-//   console.log(data.users);
-//   for (let i = 0; i < numUsers; i++) { 
-//     ellipse(80+(i*100), 80, 80, 80);
-//   }
-// }

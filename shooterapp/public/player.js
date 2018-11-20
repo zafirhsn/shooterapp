@@ -5,6 +5,7 @@ function Player(xpos, ypos) {
   this.lives = 5;
   this.dead = false;
   this.color = Player.prototype.colorBank[Math.floor(Math.random() * Player.prototype.colorBank.length)];
+  this.bullets = [];
 
   this.update = function() {
     if (keyIsDown(LEFT_ARROW)) {
@@ -25,7 +26,15 @@ function Player(xpos, ypos) {
       // return true;
     }
 
+    if (mousePressed()) {
+      this.bullets.push(new Bullet(this.xpos, this.ypos, this.color));
+    }
+    for (let i = 0; i < this.bullets.length; i++) {
+      this.bullets[i].update();
+    }
+
   };
+
 
   this.display = function() {
     stroke(0);

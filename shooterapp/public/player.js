@@ -9,28 +9,41 @@ function Player(xpos, ypos) {
   this.bullets = [];
 
   this.update = function() {
-    if (keyIsDown(LEFT_ARROW)) {
-      console.log("Key is down");
+    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
+      console.log("Left key is down");
       this.xpos -= 10;
+      //player will always move continuously across the screen
+      if (this.xpos < 0){
+        this.xpos = width;
+      }
       // return true;
     }
-    if (keyIsDown(RIGHT_ARROW)) {
+    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
       this.xpos += 10;
+      if (this.xpos > width){
+        this.xpos = 0;
+      }
       // return true;
     }
-    if (keyIsDown(DOWN_ARROW)) {
+    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
       this.ypos += 10;
+      if (this.ypos > height){
+        this.ypos = 0;
+      }
       // return true;
     }
-    if (keyIsDown(UP_ARROW)) {
+    if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
       this.ypos -= 10;
+      if (this.ypos < 0){
+        this.ypos = height;
+      }
       // return true;
     }
 
   };
 
   this.display = function() {
-    stroke(0);
+    stroke(50);
     fill(this.color);
     ellipse(this.xpos, this.ypos, 80, 80);
   }
@@ -47,4 +60,4 @@ function Player(xpos, ypos) {
 }
 
 Player.prototype.velocity = 1;
-Player.prototype.colorBank = ['blue', 'red', 'yellow', 'green', 'magenta', 'cyan', 'black', 'purple', 'orange', 'tan', 'brown', 'pink'];
+Player.prototype.colorBank = ['blue', 'red', 'yellow', 'green', 'magenta', 'cyan', 'white', 'purple', 'orange', 'tan', 'brown', 'pink'];

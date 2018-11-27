@@ -5,6 +5,7 @@ var PLAYER_INDEX;
 var readyFlag = false;
 
 function setup() {
+  //create canvas of 1000 x 600px
   createCanvas(1000, 600);
   // const dbURL = '../database.json'
   // data = loadJSON(dbURL, drawEllipse);

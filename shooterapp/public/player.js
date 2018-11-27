@@ -49,11 +49,13 @@ function Player(xpos, ypos) {
   }
 
   this.hit = function() {
+    this.dead = true;
     this.respawn();
     this.bullets = [];
   }
 
   this.respawn = function(){
+    this.dead = false;
     this.xpos = random(100, width);
     this.ypos = random(100, height);
   }

@@ -5,7 +5,8 @@ var PLAYER_INDEX;
 var readyFlag = false;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  //create canvas of 1000 x 600px
+  createCanvas(1000, 600);
   // const dbURL = '../database.json'
   // data = loadJSON(dbURL, drawEllipse);
 
@@ -121,6 +122,7 @@ function update() {
 
 function draw() {
   clear();
+  background(50);
   if (readyFlag) {
     update();
   }

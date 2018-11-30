@@ -25,47 +25,73 @@ function setup() {
   //When another client exits, the server tells us to remove their data so we don't update them or draw them 
   socket.on('exitPlayer', removePlayer);
 
+  // When another player clicks, a bullet is created and sent to the server, the server then tells us that the player added a bullet. 
+  socket.on('addBullet', addBullet);
 
 }
 
+// Add the bullet that was sent to us by the server
+function addBullet(bullet, userid) {
+  console.log("BULLET IS ADDED");
+  playerArray[userid].bullets.push(new Bullet(bullet.xpos, bullet.ypos, bullet.color));
+}
+
+// Remove a player by their socket id
 function removePlayer(userid) {
   delete playerArray[userid];
-  console.log("REMOVED PLAYER");
+
+  console.log("REMOVED PLAYER: " +  userid);
+  console.log("Success if following line is 'undefined' ");
   console.log(playerArray[userid]);
-  console.log(Object.keys(playerArray).length);
+  console.log("Current number of players: " + Object.keys(playerArray).length);
+
 }
 
-// Create new player that just joined server
+// Create new player that just joined server, and add all their bullets
 function addPlayer(user, userid) {
   playerArray[userid] = new Player(user.xpos, user.ypos);
   playerArray[userid].color = user.color;
+
+  for (let i = 0; i < user.bullets.length; i++) {
+    let bulletx = user.bullets[i].xpos;
+    let bullety = user.bullets[i].ypos;
+    let bulletColor = user.bullets[i].color;
+
+    playerArray[userid].bullets.push(new Bullet(bulletx, bullety, bulletColor));
+
+  }
   console.log("ADDED PLAYER");
 }
 
 // Create client's own player on join
 function createPlayer(data) {
   console.log('SERVER SENT ACK, CREATING PLAYER');
-  console.log(data.playerArray);
+  // console.log(data.playerArray);
 
-  // Catching up new user on all existing players
+  // Catching up new user on all existing players and their bullets
   for (var key in data.playerArray) {
     if (data.playerArray.hasOwnProperty(key)) {
       playerArray[key] = new Player(data.playerArray[key].xpos, data.playerArray[key].ypos);
       playerArray[key].color = data.playerArray[key].color;
-      console.log('in for loop ');
+
+      for (let i = 0; i < data.playerArray[key].bullets.length; i++) {
+        let bulletx = data.playerArray[key].bullets[i].xpos;
+        let bullety = data.playerArray[key].bullets[i].ypos; 
+        let bulletColor = data.playerArray[key].bullets[i].color;
+
+        playerArray[key].bullets.push(new Bullet(bulletx, bullety, bulletColor));
+      }
+
+      console.log('IN FOR LOOP CREATING PLAYERS');
       console.log(playerArray[key]);
     }
-    // playerArray.push(new Player(data.playerArray[i].xpos, data.playerArray[i].ypos));
-    // playerArray[playerArray.length-1].color = data.playerArray[i].color;
   }
 
-  PLAYER_INDEX = playerArray.length;
-
-  console.log(Object.keys(playerArray).length);
+  console.log("CURRENT NUMBER OF PLAYERS: " + Object.keys(playerArray).length);
 
   // Creating new player 
   playerArray[SOCKET_ID] = new Player(random(100, width), random(100, height));
-  // console.log(playerArray[playerArray.length - 1]);
+
   console.log('SENDING NEW USER TO SERVER');
   socket.emit('newUser', playerArray[SOCKET_ID]);
   readyFlag = true;
@@ -78,10 +104,19 @@ function update() {
   socket.on('updatePlayers', (data, userid)=> {
     playerArray[userid].xpos = data.xpos;
     playerArray[userid].ypos = data.ypos;
+
+    for (let i = 0; i < data.bullets.length; i++) {
+      let bulletx = data.bullets[i].xpos;
+      let bullety = data.bullets[i].ypos;
+
+      playerArray[userid].bullets[i].xpos = bulletx;
+      playerArray[userid].bullets[i].ypos = bullety;
+    }
   });
   // console.log(playerArray[0]);
   playerArray[SOCKET_ID].update();
   socket.emit('updateMyPlayer', playerArray[SOCKET_ID]);
+
 }
 
 function draw() {
@@ -91,41 +126,17 @@ function draw() {
     update();
   }
 
-  // NOTE: I have changed the player array data structure to be an object instead of an array in order to write the disconnect code. So instead of indicies, we will use keys now. 
   for (var key in playerArray) {
-    if (playerArray[key] !== {}) { //display Players
-      playerArray[key].display();
-       if(playerArray[key].bullets.length > 0){ //Display bullets
-        for(let j = 0; j < playerArray[key].bullets.length; j++){
-          playerArray[key].bullets[j].display();
-          for(var otherKey in playerArray) {
-            if(playerArray[key].bullets[j].hits(playerArray[otherKey])){
-              playerArray[otherKey].hit();
-              playerArray[key].bullets.splice(j, 1);
-            }
-          }
-        }
-      } 
-    }
+    playerArray[key].display();
   }
+
 }
 
-function mouseCoor() {
-  console.log('x: ' + mouseX + ', y: ' + mouseY);
+function mouseClicked() {
+  let bullet = new Bullet(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[SOCKET_ID].color);
+  playerArray[SOCKET_ID].bullets.push(bullet);
+  console.log("BULLET FIRED: " + bullet);
+
+  socket.emit('createBullet', bullet);
+
 }
-
-//Make bullet where mouse is clicked
-function mousePressed(){
-    playerArray[SOCKET_ID].bullets.push(new Bullet(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, mouseX, mouseY, playerArray[SOCKET_ID].color)); 
-}
-
-
-
-
-// function drawEllipse(data) {
-//   var numUsers = data.users;
-//   console.log(data.users);
-//   for (let i = 0; i < numUsers; i++) { 
-//     ellipse(80+(i*100), 80, 80, 80);
-//   }
-// }

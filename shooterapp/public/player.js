@@ -2,15 +2,17 @@ function Player(xpos, ypos) {
   //generates new player randomly on screen
   this.ypos = ypos;
   this.xpos = xpos; 
-  this.lives = 5;
   this.dead = false;
   this.color = Player.prototype.colorBank[Math.floor(Math.random() * Player.prototype.colorBank.length)];
   this.bullets = [];
 
   this.update = function() {
+    // player movement logic
+    //player can move either with left right up down, or w a s d
     if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
       this.xpos -= 10;
-      //player will always move continuously across the screen
+      //player's movement will wrap across the screen
+      // ie. if the player leaves top of screen, player will appear at bottom etc
       if (this.xpos < 0){
         this.xpos = width;
       }
@@ -42,6 +44,8 @@ function Player(xpos, ypos) {
       this.bullets[i].update();
     }
 
+
+
   };
 
   this.display = function() {
@@ -52,7 +56,6 @@ function Player(xpos, ypos) {
     for (let i = 0; i < this.bullets.length; i++) {
       this.bullets[i].display();
     }
-  
   }
 
   this.hit = function() {

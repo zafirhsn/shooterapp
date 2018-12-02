@@ -1,12 +1,12 @@
-var socket;
-var SOCKET_ID; 
-var playerArray = {};
-var PLAYER_INDEX;
-var readyFlag = false;
+let socket;
+let SOCKET_ID; 
+let playerArray = {};
+let PLAYER_INDEX;
+let readyFlag = false;
 
 function setup() {
   //create canvas of 1000 x 600px
-  createCanvas(1000, 600);
+  createCanvas(1000, 700);
   // const dbURL = '../database.json'
   // data = loadJSON(dbURL, drawEllipse);
 
@@ -112,6 +112,7 @@ function update() {
       playerArray[userid].bullets[i].xpos = bulletx;
       playerArray[userid].bullets[i].ypos = bullety;
     }
+
   });
   // console.log(playerArray[0]);
   playerArray[SOCKET_ID].update();

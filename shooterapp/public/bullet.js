@@ -1,24 +1,24 @@
 function Bullet(xpos, ypos, color) {
-  this.xpos = xpos;
-  this.ypos = ypos;
-  this.color = color;
-  this.toDelete = false;
+  this.xpos = xpos; 
+  this.ypos = ypos; 
+  this.color = color; 
+  this.toDelete = false; 
   
-  //
-  this.update = function(){
-    this.xpos += 3;
-    this.ypos += 3;
-
-  }
-  //draw bullet and make it move
+  //draw bullet
   this.display = function() {
-    noStroke();
-    fill(color);
-    ellipse(this.xpos, this.ypos, 10, 10);
-   
+    noStroke(); 
+    fill(color); 
+    ellipse(this.xpos, this.ypos, 10, 10); 
   }
 
+  // bullet movement logic
+  this.update = function(){
+    this.xpos += 7;
+    this.ypos += 7;
+  }
 
+  // bullet must disappear if out of frame, or if it hits another player
+  // *THIS CODE HASN'T BEEN WRITTEN YET*
   this.vanish = function(){
     /*if(this.xpos == objX && this.ypos == objY){
       vanish();
@@ -26,6 +26,7 @@ function Bullet(xpos, ypos, color) {
     this.toDelete = true;
   }
 
+  // 
   this.hits = function(p) {
     //!!!!
     //!!!!

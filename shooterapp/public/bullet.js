@@ -1,14 +1,14 @@
 function Bullet(xpos, ypos, color) {
-  this.xpos = xpos;
-  this.ypos = ypos;
-  this.color = color;
-  this.toDelete = false;
+  this.xpos = xpos; 
+  this.ypos = ypos; 
+  this.color = color; 
+  this.toDelete = false; 
   
   //draw bullet
   this.display = function() {
-    noStroke();
-    fill(color);
-    ellipse(this.xpos, this.ypos, 10, 10);
+    noStroke(); 
+    fill(color); 
+    ellipse(this.xpos, this.ypos, 10, 10); 
   }
 
   // bullet movement logic

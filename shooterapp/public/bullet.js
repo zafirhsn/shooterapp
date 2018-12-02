@@ -1,9 +1,11 @@
-function Bullet(xpos, ypos, color) {
+function Bullet(xpos, ypos, color, dirX, dirY) {
   this.xpos = xpos; 
   this.ypos = ypos; 
   this.color = color; 
   this.toDelete = false; 
-  
+  this.dirX = dirX;
+  this.dirY = dirY;
+
   //draw bullet
   this.display = function() {
     noStroke(); 
@@ -13,8 +15,8 @@ function Bullet(xpos, ypos, color) {
 
   // bullet movement logic
   this.update = function(){
-    this.xpos += 7;
-    this.ypos += 7;
+    this.xpos += dirX;
+    this.ypos += dirY;
   }
 
   // bullet must disappear if out of frame, or if it hits another player

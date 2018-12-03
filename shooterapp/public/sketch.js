@@ -124,7 +124,7 @@ function update() {
 
 function draw() {
   clear();
-  background(50);
+  background(10);
   if (readyFlag) {
     update();
   }
@@ -138,7 +138,7 @@ function draw() {
 function mouseClicked() {
   let direction = createVector(mouseX - playerArray[SOCKET_ID].xpos, mouseY - playerArray[SOCKET_ID].ypos);
   direction.normalize();
-  let bullSpeed = 7;
+  let bullSpeed = 20;
   let bullet = new Bullet(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[SOCKET_ID].color, direction.x * bullSpeed, direction.y * bullSpeed);
   playerArray[SOCKET_ID].bullets.push(bullet);
   console.log("BULLET FIRED: " + bullet);

@@ -51,8 +51,8 @@ function Player(xpos, ypos) {
   };
 
   this.display = function() {
-    stroke(50);
-    fill(this.color);
+    stroke(this.color);
+    noFill();
     ellipse(this.xpos, this.ypos, 80, 80);
 
     for (let i = 0; i < this.bullets.length; i++) {

@@ -65,5 +65,6 @@ typings/
 */package-lock.json
 
 .DS_Store
-Shooter app/.DS_Store
+shooterapp/.DS_Store
+shooterapp/public/.DS_Store
 

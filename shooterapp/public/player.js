@@ -3,6 +3,7 @@ function Player(xpos, ypos) {
   this.ypos = ypos; 
   this.xpos = xpos; 
   this.dead = false; 
+  this.lives = 5;
   this.color = Player.prototype.colorBank[Math.floor(Math.random() * Player.prototype.colorBank.length)];
   this.bullets = [];
 

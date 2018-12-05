@@ -118,6 +118,25 @@ function update() {
   });
   // console.log(playerArray[0]);
   playerArray[SOCKET_ID].update();
+
+  //player collision logic
+  for(let key in playerArray){
+    if (playerArray[key].color != playerArray[SOCKET_ID].color){
+      //check distance between self and every other player
+      let d = dist(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[key].xpos, playerArray[key].ypos)
+      
+      //if self and any other player are touching, reduce lives by 5 (instant death)
+      if (d < 80){
+        playerArray[SOCKET_ID].lives -= 5;
+        playerArray[key].lives -= 5;
+      }  
+    }
+
+    if (playerArray[key].lives <= 0){
+      console.log(playerArray[key] + "has died")
+    }
+  }
+
   socket.emit('updateMyPlayer', playerArray[SOCKET_ID]);
 
 }

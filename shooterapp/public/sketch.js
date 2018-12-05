@@ -118,6 +118,41 @@ function update() {
   });
   // console.log(playerArray[0]);
   playerArray[SOCKET_ID].update();
+
+  //bullet collision logic
+  for(let key in playerArray){
+    if (playerArray[key].color != playerArray[SOCKET_ID].color){
+      // console.log("I am checking for a player other than me.")
+      for (let i = 0; i < playerArray[key].bullets.length; i++) {
+        //create a flag to check if player is getting hit by anyone
+        let gotHit = false;
+
+        //measure distance between the current bullet in for loop, and self (player)
+        let d = int(dist(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[key].bullets[i].xpos, playerArray[key].bullets[i].ypos));
+        if (d < 45){
+          gotHit = true;
+          console.log(gotHit)
+          // playerArray[key].bullets.splice(i,1);
+        }
+
+        // if(playerArray[key].bullets[i].color == playerArray[SOCKET_ID].color){
+        //   gotHit = false;
+        // }
+
+        // if(gotHit){
+        //   console.log("I HAVE BEEN HIT!");
+        //   playerArray[SOCKET_ID].lives -= 1;
+        //   console.log(playerArray[SOCKET_ID].lives)
+        // }
+      }
+    }
+  }
+
+  if (playerArray[SOCKET_ID].lives == 0){
+    let flag = true;
+    console.log(flag);
+  }
+
   socket.emit('updateMyPlayer', playerArray[SOCKET_ID]);
 
 }

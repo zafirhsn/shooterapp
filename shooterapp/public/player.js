@@ -3,6 +3,7 @@ function Player(xpos, ypos) {
   this.ypos = ypos; 
   this.xpos = xpos; 
   this.dead = false; 
+  this.lives = 5;
   this.color = Player.prototype.colorBank[Math.floor(Math.random() * Player.prototype.colorBank.length)];
   this.bullets = [];
 
@@ -26,6 +27,16 @@ function Player(xpos, ypos) {
       // return true;
     }
 
+    //BELOW IS THE CODE TO DELETE BULLET WHEN IT GOES OUT OF SCREEN
+
+    // for (let i = 0; i < this.bullets.length; i++) {
+    //   if (this.bullets[i].xpos > (width-100) || this.bullets[i].xpos < 100){
+    //     this.bullets.splice(i,1);
+    //   }
+    // }
+
+    // ----------------------
+
     // for every bullet that is associated with the player
     // update the position of the bullet by the speed that is set in bullet.js
     // we are linking the bullet position and the player so that we can just update
@@ -33,6 +44,7 @@ function Player(xpos, ypos) {
     for (let i = 0; i < this.bullets.length; i++) {
       this.bullets[i].update();
     }
+
 
     //player's movement will wrap across the screen
     // ie. if the player leaves top of screen, player will appear at bottom etc

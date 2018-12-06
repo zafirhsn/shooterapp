@@ -83,6 +83,8 @@ function Player(xpos, ypos) {
     this.xpos = random(100, width);
     this.ypos = random(100, height);
   }
+
+
 }
 
 

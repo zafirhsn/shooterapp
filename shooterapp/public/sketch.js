@@ -28,6 +28,14 @@ function setup() {
   // When another player clicks, a bullet is created and sent to the server, the server then tells us that the player added a bullet. 
   socket.on('addBullet', addBullet);
 
+  // When server tells us a player has deleted a bullet
+  socket.on('deleteBullet', deleteBullet);
+
+}
+
+// Delete bullet thats gone off screen or hit a player
+function deleteBullet(userid, bulletIndex) {
+  playerArray[userid].bullets.splice(bulletIndex, 1);
 }
 
 // Add the bullet that was sent to us by the server
@@ -146,12 +154,29 @@ function draw() {
   background(10);
   if (readyFlag) {
     update();
+
+    for (let i = 0; i < playerArray[SOCKET_ID].bullets.length; i++) {
+      if (!inBound(playerArray[SOCKET_ID].bullets[i])) {
+        playerArray[SOCKET_ID].bullets.splice(i, 1);
+        socket.emit('deleteBullet', i);
+      }
+    }
+
   }
 
   for (var key in playerArray) {
     playerArray[key].display();
   }
 
+}
+
+function inBound(bullet) {
+  if (bullet.xpos > (width - 100) || bullet.xpos < 100) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 function mouseClicked() {

@@ -67,6 +67,16 @@ io.on('connection', (socket)=> {
 
   });
 
+  // When a bullet is deleted off the screen, tell all other clients
+  socket.on('deleteBullet', (bulletIndex)=> {
+    let userid = socket.id;
+    playerArray[userid].bullets.splice(bulletIndex, 1);
+
+    socket.broadcast.emit('deleteBullet', userid, bulletIndex);
+  });
+
+
+
   // When a client disconnects, remove their data from player array and broadcast change to all other clients
   socket.on('disconnect', ()=> {
     let userid = socket.id;

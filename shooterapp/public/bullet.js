@@ -3,7 +3,6 @@ function Bullet(xpos, ypos, color, dirX, dirY) {
   this.ypos = ypos; 
   this.color = color;
   this.size = 10; 
-  this.toDelete = false; 
   this.dirX = dirX;
   this.dirY = dirY;
 

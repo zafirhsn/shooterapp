@@ -19,3 +19,4 @@ function Bullet(xpos, ypos, color, dirX, dirY) {
     this.xpos += dirX;
     this.ypos += dirY;
   }
+}

@@ -31,6 +31,13 @@ function setup() {
   // When server tells us someone has lost a lifeby being hit by a bullet
   socket.on('lostLife', lostLife);
 
+  // When a player gets a point, update their score
+  socket.on('point', point);
+
+}
+
+function point(userid) {
+  playerArray[userid].score++;
 }
 
 // Decrease life of user that's been hit, check if this client is the killer
@@ -42,6 +49,9 @@ function lostLife(userid, killerid, bulletIndex) {
   if (killerid == SOCKET_ID) {
     console.log("I KILLED A PLAYER");
     playerArray[SOCKET_ID].bullets.splice(bulletIndex, 1);
+    playerArray[SOCKET_ID].score++;
+    console.log("SCORE: " + playerArray[SOCKET_ID].score);
+    socket.emit('point');
     socket.emit('deleteBullet', bulletIndex);
   }
 }
@@ -192,6 +202,21 @@ function draw() {
     playerArray[key].display();
   }
 
+  displayScore();
+
+}
+
+function displayScore() {
+  textSize(20);
+  noStroke();
+
+  let space = 0;
+  for (var key in playerArray) {
+    fill(playerArray[key].color);
+
+    text(playerArray[key].color + ': ' + playerArray[key].score, 800, 50+space);
+    space += 25;
+  }
 }
 
 // Bullet + player collision logic

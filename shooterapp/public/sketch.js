@@ -14,7 +14,7 @@ function setup() {
   // Once server acknowledges, create new player instance
 
   // Our client socket id used to keep track of all players playing, entering, and leaving
-  SOCKET_ID = socket.id;
+  // SOCKET_ID = socket.id;
 
   // Server gives us list of all players already playing on join, we will use this to create new client's own player, and to catch the client up on all players already on server
   socket.on('newUser', createPlayer);
@@ -28,6 +28,29 @@ function setup() {
   // When another player clicks, a bullet is created and sent to the server, the server then tells us that the player added a bullet. 
   socket.on('addBullet', addBullet);
 
+  // When server tells us a player has deleted a bullet
+  socket.on('deleteBullet', deleteBullet);
+
+  // When server tells us someone has lost a life
+  socket.on('lostLife', lostLife);
+
+}
+
+// Decrease life of user that's been hit;
+function lostLife(userid, killerid, bulletIndex) {
+  playerArray[userid].lives--;
+  playerArray[userid].size -= 15;
+
+  if (killerid == SOCKET_ID) {
+    console.log("I KILLED A PLAYER");
+    playerArray[SOCKET_ID].bullets.splice(bulletIndex, 1);
+    socket.emit('deleteBullet', bulletIndex);
+  }
+}
+
+// Delete bullet thats gone off screen or hit a player
+function deleteBullet(userid, bulletIndex) {
+  playerArray[userid].bullets.splice(bulletIndex, 1);
 }
 
 // Add the bullet that was sent to us by the server
@@ -66,6 +89,7 @@ function addPlayer(user, userid) {
 
 // Create client's own player on join
 function createPlayer(data) {
+  SOCKET_ID = socket.id;
   console.log('SERVER SENT ACK, CREATING PLAYER');
   // console.log(data.playerArray);
 
@@ -118,27 +142,43 @@ function update() {
   });
   // console.log(playerArray[0]);
   playerArray[SOCKET_ID].update();
+  socket.emit('updateMyPlayer', playerArray[SOCKET_ID]);
+
+  // Check to see if any of client's own bullets have gone off the screen
+  for (let i = 0; i < playerArray[SOCKET_ID].bullets.length; i++) {
+    if (!inBound(playerArray[SOCKET_ID].bullets[i])) {
+      playerArray[SOCKET_ID].bullets.splice(i, 1);
+      socket.emit('deleteBullet', i);
+    }
+  }
+
+  // Player + bullet collision logic
 
   //player collision logic
   for(let key in playerArray){
-    if (playerArray[key].color != playerArray[SOCKET_ID].color){
+    if (playerArray[key].color != playerArray[SOCKET_ID].color) {
       //check distance between self and every other player
       let d = dist(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[key].xpos, playerArray[key].ypos)
       
       //if self and any other player are touching, reduce lives by 5 (instant death)
-      if (d < 80){
+      if (d <= (playerArray[SOCKET_ID].size / 2) + (playerArray[key].size / 2)) {
         playerArray[SOCKET_ID].lives -= 5;
         playerArray[key].lives -= 5;
-      }  
+        console.log("PLAYERS COLLIDED");
+      }
+      
+      for (let i = 0; i < playerArray[key].bullets.length; i++) { 
+        if (collision(playerArray[key].bullets[i], playerArray[SOCKET_ID])) {
+          playerArray[SOCKET_ID].lives--;
+          playerArray[SOCKET_ID].size -= 15;
+          console.log("Number of lives: " + playerArray[SOCKET_ID].lives);
+          socket.emit('lostLife', key, i);
+        }
+      }
     }
 
-    if (playerArray[key].lives <= 0){
-      console.log(playerArray[key] + "has died")
-    }
   }
-
-  socket.emit('updateMyPlayer', playerArray[SOCKET_ID]);
-
+  
 }
 
 function draw() {
@@ -146,6 +186,7 @@ function draw() {
   background(10);
   if (readyFlag) {
     update();
+
   }
 
   for (var key in playerArray) {
@@ -154,13 +195,34 @@ function draw() {
 
 }
 
+function collision(otherBullet, player) {
+  let d = dist(otherBullet.xpos, otherBullet.ypos, player.xpos, player.ypos);
+  return (d <= (player.size / 2) + (otherBullet.size / 2));
+}
+
+function inBound(bullet) {
+  if (bullet.xpos > (width - 100) || bullet.xpos < 100) {
+    return false;
+  }
+  else if (bullet.ypos > (height - 100) || bullet.ypos < 100) {
+    return false;
+  }
+  else {
+    return true;
+  }
+}
+
+
 function mouseClicked() {
   let direction = createVector(mouseX - playerArray[SOCKET_ID].xpos, mouseY - playerArray[SOCKET_ID].ypos);
   direction.normalize();
   let bullSpeed = 20;
   let bullet = new Bullet(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[SOCKET_ID].color, direction.x * bullSpeed, direction.y * bullSpeed);
   playerArray[SOCKET_ID].bullets.push(bullet);
+
   console.log("BULLET FIRED: " + bullet);
+  console.log("BULLET COUNT: " + playerArray[SOCKET_ID].bullets.length);
+
 
   socket.emit('createBullet', bullet);
 

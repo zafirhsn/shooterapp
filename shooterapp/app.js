@@ -15,7 +15,7 @@ app.set('view engine', 'ejs');
 //   data = JSON.parse(txt);
 // }
 
-app.get('/', (req, res) => {
+app.get('/game*', (req, res) => {
   res.render('index');
 });
 
@@ -86,6 +86,10 @@ io.on('connection', (socket)=> {
     playerArray[userid].lives--;
     playerArray[userid].size -= 15;
     socket.broadcast.emit('lostLife', userid, killerid, bulletIndex);
+
+    if (playerArray[userid].lives <= 0) {
+
+    }
   });
 
   // When a client disconnects, remove their data from player array and broadcast change to all other clients
@@ -97,6 +101,9 @@ io.on('connection', (socket)=> {
     console.log('CURRENT NUMBER OF PLAYERS: ' + Object.keys(playerArray).length);
   });
 
+  socket.on('iDied', () => {
+    res.redirect('/death');
+  });
 });
 
 

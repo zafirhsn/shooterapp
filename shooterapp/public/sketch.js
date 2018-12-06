@@ -163,6 +163,8 @@ function update() {
         playerArray[SOCKET_ID].lives -= 5;
         playerArray[key].lives -= 5;
         console.log("PLAYERS COLLIDED");
+        console.log(playerArray[SOCKET_ID].lives);
+        amIDead();
       }
       
       // Loop through every other client's bullets to see if they've hit this client. Upon collision, tell the server you've lost a life and give the server the socket.id of the player that killed you and the index of the bullet that hit you. Server will use this info to find the the client that killed the player
@@ -172,11 +174,19 @@ function update() {
           playerArray[SOCKET_ID].size -= 15;
           console.log("Number of lives: " + playerArray[SOCKET_ID].lives);
           socket.emit('lostLife', key, i);
+          amIDead();
         }
       }
     }
   }
-  
+}
+
+
+//death function
+function amIDead(){
+  if(playerArray[SOCKET_ID].lives <= 0){
+    window.location.href = "/death"
+  }
 }
 
 // Update and display all entities

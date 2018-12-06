@@ -15,10 +15,15 @@ app.set('view engine', 'ejs');
 //   data = JSON.parse(txt);
 // }
 
-app.get('/', (req, res) => {
+app.get('/game*', (req, res) => {
   res.render('index');
 });
 
+app.get('/death', (req, res) => {
+  res.render('death');
+});
+
+// Keep track of all players on server
 var playerArray = {};
 
 io.on('connection', (socket)=> {
@@ -32,12 +37,12 @@ io.on('connection', (socket)=> {
     let userid = socket.id;
     playerArray[userid] = user;
     // console.log(playerArray[userid]);
-    socket.broadcast.emit('addedPlayer', user, userid);
+    socket.broadcast.emit('addPlayer', user, userid);
     console.log("CURRENT NUMBER OF PLAYERS: " + Object.keys(playerArray).length);
   })
 
   // When update given from a client, broadcast to every other client
-  socket.on('updateMyPlayer', (data)=> {
+  socket.on('updatePlayer', (data)=> {
     let userid = socket.id;
     playerArray[userid].xpos = data.xpos;
     playerArray[userid].ypos = data.ypos;
@@ -51,12 +56,12 @@ io.on('connection', (socket)=> {
 
     }
 
-    socket.broadcast.emit('updatePlayers', playerArray[userid], userid);
+    socket.broadcast.emit('updatePlayer', playerArray[userid], userid);
   });
 
 
-  // Whenever left mouse is clicked on client, send bullet to server, server sends new bullet to every other client
-  socket.on('createBullet', (bullet)=> {
+  // Whenever left mouse is clicked on client, send bullet to server, server sends new bullet to every other client and updates playerArray
+  socket.on('addBullet', (bullet)=> {
 
     let userid = socket.id;
     playerArray[userid].bullets.push(bullet);
@@ -75,25 +80,30 @@ io.on('connection', (socket)=> {
     socket.broadcast.emit('deleteBullet', userid, bulletIndex);
   });
 
-  
+  // When a client says they've lost a life, tell all the other clients that that client lst a life and send them the socket.id and bullet index of the killer so the clients can see if their bullet is the one that killed the client. 
   socket.on('lostLife', (killerid, bulletIndex)=> {
     let userid = socket.id;
     playerArray[userid].lives--;
     playerArray[userid].size -= 15;
     socket.broadcast.emit('lostLife', userid, killerid, bulletIndex);
+
+    if (playerArray[userid].lives <= 0) {
+
+    }
   });
-
-
 
   // When a client disconnects, remove their data from player array and broadcast change to all other clients
   socket.on('disconnect', ()=> {
     let userid = socket.id;
     delete playerArray[userid];
-    socket.broadcast.emit('exitPlayer', userid);
+    socket.broadcast.emit('removePlayer', userid);
     console.log('REMOVED PLAYER: ' + userid);
     console.log('CURRENT NUMBER OF PLAYERS: ' + Object.keys(playerArray).length);
   });
 
+  socket.on('iDied', () => {
+    res.redirect('/death');
+  });
 });
 
 

@@ -5,7 +5,7 @@ let PLAYER_INDEX;
 let readyFlag = false;
 
 function setup() {
-  //create canvas of 1000 x 600px
+  //create canvas of 1000 x 700px
   createCanvas(1000, 700);
   // const dbURL = '../database.json'
   // data = loadJSON(dbURL, drawEllipse);
@@ -13,34 +13,32 @@ function setup() {
   socket = io.connect('http://localhost:3000'); 
   // Once server acknowledges, create new player instance
 
-  // Our client socket id used to keep track of all players playing, entering, and leaving
-  // SOCKET_ID = socket.id;
-
   // Server gives us list of all players already playing on join, we will use this to create new client's own player, and to catch the client up on all players already on server
   socket.on('newUser', createPlayer);
 
   //When new player joins, we're going to add them to playerArray 
-  socket.on('addedPlayer', addPlayer);
+  socket.on('addPlayer', addPlayer);
   
   //When another client exits, the server tells us to remove their data so we don't update them or draw them 
-  socket.on('exitPlayer', removePlayer);
+  socket.on('removePlayer', removePlayer);
 
-  // When another player clicks, a bullet is created and sent to the server, the server then tells us that the player added a bullet. 
+  // When another player clicks, a bullet is created and sent to the server, the server then tells everyone else that the player added a bullet
   socket.on('addBullet', addBullet);
 
-  // When server tells us a player has deleted a bullet
+  // When server tells us a player has deleted a bullet that has gone out of bounds or hit another player
   socket.on('deleteBullet', deleteBullet);
 
-  // When server tells us someone has lost a life
+  // When server tells us someone has lost a lifeby being hit by a bullet
   socket.on('lostLife', lostLife);
 
 }
 
-// Decrease life of user that's been hit;
+// Decrease life of user that's been hit, check if this client is the killer
 function lostLife(userid, killerid, bulletIndex) {
   playerArray[userid].lives--;
   playerArray[userid].size -= 15;
 
+  // If this client's bullet killed the player, tell the server to delete that bullet
   if (killerid == SOCKET_ID) {
     console.log("I KILLED A PLAYER");
     playerArray[SOCKET_ID].bullets.splice(bulletIndex, 1);
@@ -53,13 +51,13 @@ function deleteBullet(userid, bulletIndex) {
   playerArray[userid].bullets.splice(bulletIndex, 1);
 }
 
-// Add the bullet that was sent to us by the server
+// Add the bullet, to the appropriate user, that was sent to us by the server
 function addBullet(bullet, userid) {
   console.log("BULLET IS ADDED");
   playerArray[userid].bullets.push(new Bullet(bullet.xpos, bullet.ypos, bullet.color, bullet.dirX, bullet.dirY));
 }
 
-// Remove a player by their socket id
+// Remove a player by their socket id when they leave the server
 function removePlayer(userid) {
   delete playerArray[userid];
 
@@ -87,13 +85,13 @@ function addPlayer(user, userid) {
   console.log("ADDED PLAYER");
 }
 
-// Create client's own player on join
+// Create client's own player on join and catch them up on all other players and their bullets
 function createPlayer(data) {
+  // This is the client's own socket.id, used to access their own data
   SOCKET_ID = socket.id;
   console.log('SERVER SENT ACK, CREATING PLAYER');
-  // console.log(data.playerArray);
 
-  // Catching up new user on all existing players and their bullets
+  // Loop through existing players and create their objects on client side, including bullets
   for (var key in data.playerArray) {
     if (data.playerArray.hasOwnProperty(key)) {
       playerArray[key] = new Player(data.playerArray[key].xpos, data.playerArray[key].ypos);
@@ -115,9 +113,10 @@ function createPlayer(data) {
 
   console.log("CURRENT NUMBER OF PLAYERS: " + Object.keys(playerArray).length);
 
-  // Creating new player 
-  playerArray[SOCKET_ID] = new Player(random(100, width), random(100, height));
+  // Creating client's own new player
+  playerArray[SOCKET_ID] = new Player(random(300, width), random(300, height));
 
+  // Send server client's own player object, so server can add to array and tell all other clients that a a new player has joined
   console.log('SENDING NEW USER TO SERVER');
   socket.emit('newUser', playerArray[SOCKET_ID]);
   readyFlag = true;
@@ -126,8 +125,9 @@ function createPlayer(data) {
 
 // Listen to server to update other players movements
 // Send client's own movements to server to be broadcast
+// Check for all bullet collisions
 function update() {
-  socket.on('updatePlayers', (data, userid)=> {
+  socket.on('updatePlayer', (data, userid)=> {
     playerArray[userid].xpos = data.xpos;
     playerArray[userid].ypos = data.ypos;
 
@@ -140,9 +140,9 @@ function update() {
     }
 
   });
-  // console.log(playerArray[0]);
+
   playerArray[SOCKET_ID].update();
-  socket.emit('updateMyPlayer', playerArray[SOCKET_ID]);
+  socket.emit('updatePlayer', playerArray[SOCKET_ID]);
 
   // Check to see if any of client's own bullets have gone off the screen
   for (let i = 0; i < playerArray[SOCKET_ID].bullets.length; i++) {
@@ -151,8 +151,6 @@ function update() {
       socket.emit('deleteBullet', i);
     }
   }
-
-  // Player + bullet collision logic
 
   //player collision logic
   for(let key in playerArray){
@@ -165,22 +163,33 @@ function update() {
         playerArray[SOCKET_ID].lives -= 5;
         playerArray[key].lives -= 5;
         console.log("PLAYERS COLLIDED");
+        console.log(playerArray[SOCKET_ID].lives);
+        amIDead();
       }
       
+      // Loop through every other client's bullets to see if they've hit this client. Upon collision, tell the server you've lost a life and give the server the socket.id of the player that killed you and the index of the bullet that hit you. Server will use this info to find the the client that killed the player
       for (let i = 0; i < playerArray[key].bullets.length; i++) { 
         if (collision(playerArray[key].bullets[i], playerArray[SOCKET_ID])) {
           playerArray[SOCKET_ID].lives--;
           playerArray[SOCKET_ID].size -= 15;
           console.log("Number of lives: " + playerArray[SOCKET_ID].lives);
           socket.emit('lostLife', key, i);
+          amIDead();
         }
       }
     }
-
   }
-  
 }
 
+
+//death function
+function amIDead(){
+  if(playerArray[SOCKET_ID].lives <= 0){
+    window.location.href = "/death"
+  }
+}
+
+// Update and display all entities
 function draw() {
   clear();
   background(10);
@@ -195,16 +204,18 @@ function draw() {
 
 }
 
+// Bullet + player collision logic
 function collision(otherBullet, player) {
   let d = dist(otherBullet.xpos, otherBullet.ypos, player.xpos, player.ypos);
   return (d <= (player.size / 2) + (otherBullet.size / 2));
 }
 
+// Bullet bounds logic
 function inBound(bullet) {
-  if (bullet.xpos > (width - 100) || bullet.xpos < 100) {
+  if (bullet.xpos > width || bullet.xpos < 0) {
     return false;
   }
-  else if (bullet.ypos > (height - 100) || bullet.ypos < 100) {
+  else if (bullet.ypos > height || bullet.ypos < 0) {
     return false;
   }
   else {
@@ -212,7 +223,8 @@ function inBound(bullet) {
   }
 }
 
-
+// Bullet firing logic
+// When left mouse is clickd, create a new bullet, add it to the playerArray and send that bullet to the server so server can tell all the other clients that a new bullet is on the screen
 function mouseClicked() {
   let direction = createVector(mouseX - playerArray[SOCKET_ID].xpos, mouseY - playerArray[SOCKET_ID].ypos);
   direction.normalize();
@@ -224,6 +236,6 @@ function mouseClicked() {
   console.log("BULLET COUNT: " + playerArray[SOCKET_ID].bullets.length);
 
 
-  socket.emit('createBullet', bullet);
+  socket.emit('addBullet', bullet);
 
 }

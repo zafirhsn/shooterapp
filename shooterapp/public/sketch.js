@@ -201,10 +201,10 @@ function collision(otherBullet, player) {
 }
 
 function inBound(bullet) {
-  if (bullet.xpos > (width - 100) || bullet.xpos < 100) {
+  if (bullet.xpos > width || bullet.xpos < 0) {
     return false;
   }
-  else if (bullet.ypos > (height - 100) || bullet.ypos < 100) {
+  else if (bullet.ypos > height || bullet.ypos < 0) {
     return false;
   }
   else {

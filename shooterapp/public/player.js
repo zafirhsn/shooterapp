@@ -3,6 +3,7 @@ function Player(xpos, ypos) {
   this.ypos = ypos; 
   this.xpos = xpos; 
   this.dead = false; 
+  this.lives = 5;
   this.color = Player.prototype.colorBank[Math.floor(Math.random() * Player.prototype.colorBank.length)];
   this.bullets = [];
 
@@ -51,8 +52,8 @@ function Player(xpos, ypos) {
   };
 
   this.display = function() {
-    stroke(50);
-    fill(this.color);
+    stroke(this.color);
+    noFill();
     ellipse(this.xpos, this.ypos, 80, 80);
 
     for (let i = 0; i < this.bullets.length; i++) {

@@ -64,3 +64,7 @@ typings/
 */node_modules/
 */package-lock.json
 
+.DS_Store
+shooterapp/.DS_Store
+shooterapp/public/.DS_Store
+

@@ -33,7 +33,7 @@ function setup() {
 // Add the bullet that was sent to us by the server
 function addBullet(bullet, userid) {
   console.log("BULLET IS ADDED");
-  playerArray[userid].bullets.push(new Bullet(bullet.xpos, bullet.ypos, bullet.color));
+  playerArray[userid].bullets.push(new Bullet(bullet.xpos, bullet.ypos, bullet.color, bullet.dirX, bullet.dirY));
 }
 
 // Remove a player by their socket id
@@ -56,8 +56,9 @@ function addPlayer(user, userid) {
     let bulletx = user.bullets[i].xpos;
     let bullety = user.bullets[i].ypos;
     let bulletColor = user.bullets[i].color;
-
-    playerArray[userid].bullets.push(new Bullet(bulletx, bullety, bulletColor));
+    let bulletdirX = user.bullets[i].dirX;
+    let bulletdirY = user.bullets[i].dirY;
+    playerArray[userid].bullets.push(new Bullet(bulletx, bullety, bulletColor, bulletdirX, bulletdirY));
 
   }
   console.log("ADDED PLAYER");
@@ -78,8 +79,9 @@ function createPlayer(data) {
         let bulletx = data.playerArray[key].bullets[i].xpos;
         let bullety = data.playerArray[key].bullets[i].ypos; 
         let bulletColor = data.playerArray[key].bullets[i].color;
-
-        playerArray[key].bullets.push(new Bullet(bulletx, bullety, bulletColor));
+        let bulletdirX = data.playerArray[key].bullets[i].dirX;
+        let bulletdirY = data.playerArray[key].bullets[i].dirY;
+        playerArray[key].bullets.push(new Bullet(bulletx, bullety, bulletColor, bulletdirX, bulletdirY));
       }
 
       console.log('IN FOR LOOP CREATING PLAYERS');
@@ -116,13 +118,32 @@ function update() {
   });
   // console.log(playerArray[0]);
   playerArray[SOCKET_ID].update();
+
+  //player collision logic
+  for(let key in playerArray){
+    if (playerArray[key].color != playerArray[SOCKET_ID].color){
+      //check distance between self and every other player
+      let d = dist(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[key].xpos, playerArray[key].ypos)
+      
+      //if self and any other player are touching, reduce lives by 5 (instant death)
+      if (d < 80){
+        playerArray[SOCKET_ID].lives -= 5;
+        playerArray[key].lives -= 5;
+      }  
+    }
+
+    if (playerArray[key].lives <= 0){
+      console.log(playerArray[key] + "has died")
+    }
+  }
+
   socket.emit('updateMyPlayer', playerArray[SOCKET_ID]);
 
 }
 
 function draw() {
   clear();
-  background(50);
+  background(10);
   if (readyFlag) {
     update();
   }
@@ -134,7 +155,10 @@ function draw() {
 }
 
 function mouseClicked() {
-  let bullet = new Bullet(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[SOCKET_ID].color);
+  let direction = createVector(mouseX - playerArray[SOCKET_ID].xpos, mouseY - playerArray[SOCKET_ID].ypos);
+  direction.normalize();
+  let bullSpeed = 20;
+  let bullet = new Bullet(playerArray[SOCKET_ID].xpos, playerArray[SOCKET_ID].ypos, playerArray[SOCKET_ID].color, direction.x * bullSpeed, direction.y * bullSpeed);
   playerArray[SOCKET_ID].bullets.push(bullet);
   console.log("BULLET FIRED: " + bullet);
 

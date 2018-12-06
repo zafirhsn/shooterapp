@@ -1,7 +1,8 @@
 function Bullet(xpos, ypos, color, dirX, dirY) {
   this.xpos = xpos; 
   this.ypos = ypos; 
-  this.color = color; 
+  this.color = color;
+  this.size = 10; 
   this.toDelete = false; 
   this.dirX = dirX;
   this.dirY = dirY;
@@ -10,7 +11,7 @@ function Bullet(xpos, ypos, color, dirX, dirY) {
   this.display = function() {
     noStroke(); 
     fill(color); 
-    ellipse(this.xpos, this.ypos, 10, 10); 
+    ellipse(this.xpos, this.ypos, this.size, this.size); 
   }
 
   // bullet movement logic

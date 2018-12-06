@@ -19,6 +19,10 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
+app.get('/death', (req, res) => {
+  res.render('death');
+});
+
 // Keep track of all players on server
 var playerArray = {};
 

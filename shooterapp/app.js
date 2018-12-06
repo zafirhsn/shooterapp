@@ -71,8 +71,16 @@ io.on('connection', (socket)=> {
   socket.on('deleteBullet', (bulletIndex)=> {
     let userid = socket.id;
     playerArray[userid].bullets.splice(bulletIndex, 1);
-
+    console.log("IN DELETE BULLET");
     socket.broadcast.emit('deleteBullet', userid, bulletIndex);
+  });
+
+  
+  socket.on('lostLife', (killerid, bulletIndex)=> {
+    let userid = socket.id;
+    playerArray[userid].lives--;
+    playerArray[userid].size -= 15;
+    socket.broadcast.emit('lostLife', userid, killerid, bulletIndex);
   });
 
 

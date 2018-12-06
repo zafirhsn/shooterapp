@@ -116,7 +116,7 @@ function createPlayer(data) {
   console.log("CURRENT NUMBER OF PLAYERS: " + Object.keys(playerArray).length);
 
   // Creating new player 
-  playerArray[SOCKET_ID] = new Player(random(100, width), random(100, height));
+  playerArray[SOCKET_ID] = new Player(random(300, width), random(300, height));
 
   console.log('SENDING NEW USER TO SERVER');
   socket.emit('newUser', playerArray[SOCKET_ID]);

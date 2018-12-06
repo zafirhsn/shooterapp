@@ -28,14 +28,6 @@ function Player(xpos, ypos) {
       // return true;
     }
 
-    //BELOW IS THE CODE TO DELETE BULLET WHEN IT GOES OUT OF SCREEN
-
-    // for (let i = 0; i < this.bullets.length; i++) {
-    //   if (this.bullets[i].xpos > (width-100) || this.bullets[i].xpos < 100){
-    //     this.bullets.splice(i,1);
-    //   }
-    // }
-
     // ----------------------
 
     // for every bullet that is associated with the player

@@ -80,6 +80,5 @@ function Player(xpos, ypos) {
 
 }
 
-
 Player.prototype.velocity = 1;
 Player.prototype.colorBank = ['blue', 'red', 'yellow', 'green', 'magenta', 'cyan', 'white', 'purple', 'orange', 'tan', 'brown', 'pink'];

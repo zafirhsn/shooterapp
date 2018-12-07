@@ -72,6 +72,13 @@ io.on('connection', (socket)=> {
 
   });
 
+  socket.on('point', (data)=> {
+    let userid = socket.id;
+    playerArray[userid].score++;
+    
+    socket.broadcast.emit('point', userid);
+  });
+
   // When a bullet is deleted off the screen, tell all other clients
   socket.on('deleteBullet', (bulletIndex)=> {
     let userid = socket.id;

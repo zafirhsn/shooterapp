@@ -68,7 +68,7 @@ io.on('connection', (socket)=> {
 
   });
 
-  socket.on('point', ()=> {
+  socket.on('point', (data)=> {
     let userid = socket.id;
     playerArray[userid].score++;
     

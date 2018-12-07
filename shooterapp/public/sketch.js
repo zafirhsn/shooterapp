@@ -32,11 +32,11 @@ function setup() {
   socket.on('lostLife', lostLife);
 
   // When a player gets a point, update their score
-  socket.on('point', point);
+  socket.on('point', increasePoint);
 
 }
 
-function point(userid) {
+function increasePoint(userid) {
   playerArray[userid].score++;
 }
 
@@ -51,7 +51,7 @@ function lostLife(userid, killerid, bulletIndex) {
     playerArray[SOCKET_ID].bullets.splice(bulletIndex, 1);
     playerArray[SOCKET_ID].score++;
     console.log("SCORE: " + playerArray[SOCKET_ID].score);
-    socket.emit('point');
+    socket.emit('point', {});
     socket.emit('deleteBullet', bulletIndex);
   }
 }
@@ -106,6 +106,9 @@ function createPlayer(data) {
     if (data.playerArray.hasOwnProperty(key)) {
       playerArray[key] = new Player(data.playerArray[key].xpos, data.playerArray[key].ypos);
       playerArray[key].color = data.playerArray[key].color;
+      playerArray[key].lives = data.playerArray[key].lives;
+      playerArray[key].size = data.playerArray[key].size;
+      playerArray[key].score = data.playerArray[key].score;
 
       for (let i = 0; i < data.playerArray[key].bullets.length; i++) {
         let bulletx = data.playerArray[key].bullets[i].xpos;

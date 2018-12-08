@@ -3,12 +3,18 @@ let SOCKET_ID;
 let playerArray = {};
 let PLAYER_INDEX;
 let readyFlag = false;
-
+let gotHit;
+let shoot;
 function setup() {
   //create canvas of 1000 x 700px
   createCanvas(1000, 700);
   // const dbURL = '../database.json'
   // data = loadJSON(dbURL, drawEllipse);
+
+
+  //sound
+  gotHit = loadSound("audio/hit.wav");
+  shoot = loadSound("audio/laser.wav");
 
   socket = io.connect('http://localhost:3000'); 
   // Once server acknowledges, create new player instance
@@ -178,6 +184,7 @@ function update() {
         console.log("PLAYERS COLLIDED");
         console.log(playerArray[SOCKET_ID].lives);
         amIDead();
+        gotHit.play();
       }
       
       // Loop through every other client's bullets to see if they've hit this client. Upon collision, tell the server you've lost a life and give the server the socket.id of the player that killed you and the index of the bullet that hit you. Server will use this info to find the the client that killed the player
@@ -188,6 +195,7 @@ function update() {
           console.log("Number of lives: " + playerArray[SOCKET_ID].lives);
           socket.emit('lostLife', key, i);
           amIDead();
+          gotHit.play();
         }
       }
     }
@@ -273,6 +281,7 @@ function inBound(bullet) {
 // Bullet firing logic
 // When left mouse is clickd, create a new bullet, add it to the playerArray and send that bullet to the server so server can tell all the other clients that a new bullet is on the screen
 function mouseClicked() {
+  shoot.play();
   let direction = createVector(mouseX - playerArray[SOCKET_ID].xpos, mouseY - playerArray[SOCKET_ID].ypos);
   direction.normalize();
   let bullSpeed = 20;

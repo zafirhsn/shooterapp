@@ -196,9 +196,9 @@ function update() {
 
 
 //death function
-function amIDead(){
+function amIDead() {
   if(playerArray[SOCKET_ID].lives <= 0){
-    window.location.href = "/death"
+    window.location.href = '/death/' + SOCKET_ID;
   }
 }
 
@@ -212,6 +212,14 @@ function draw() {
   }
 
   for (var key in playerArray) {
+    if (key === SOCKET_ID) {
+      strokeWeight(5);
+      fill(playerArray[SOCKET_ID].color)
+    }
+    else {
+      strokeWeight(2);
+      noFill();
+    }
     playerArray[key].display();
   }
 
@@ -223,11 +231,22 @@ function displayScore() {
   textSize(20);
   noStroke();
 
-  let space = 0;
+  
+  var sortedScores = [];
   for (var key in playerArray) {
+    sortedScores.push([key, playerArray[key].score]);
+  }
+  sortedScores.sort((a,b)=> {
+    return b[1] - a[1];
+  });
+
+  let space = 0;
+  for (var i = 0; i < sortedScores.length; i++) {
+    let key = sortedScores[i][0];
+
     fill(playerArray[key].color);
 
-    text(playerArray[key].color + ': ' + playerArray[key].score, 800, 50+space);
+    text(playerArray[key].color.toUpperCase() + ': ' + playerArray[key].score, 800, 50+space);
     space += 25;
   }
 }

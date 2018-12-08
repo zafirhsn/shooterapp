@@ -15,13 +15,16 @@ app.set('view engine', 'ejs');
 //   data = JSON.parse(txt);
 // }
 
-app.get('/game*', (req, res) => {
+app.get('/', (req, res) => {
   res.render('index');
 });
 
-app.get('/death', (req, res) => {
-  res.render('death');
+
+app.get('/death/:userid', (req, res) => {
+  const data = req.params;
+  res.render('death', { score: playerArray[data.userid].score });
 });
+
 
 // Keep track of all players on server
 var playerArray = {};
@@ -109,7 +112,11 @@ io.on('connection', (socket)=> {
   });
 
   socket.on('iDied', () => {
-    res.redirect('/death');
+    let userid = socket.id;
+    console.log("GAME OVER");
+
+    renderDeath(userid);
+
   });
 });
 

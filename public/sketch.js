@@ -16,7 +16,7 @@ function setup() {
   gotHit = loadSound("audio/hit.wav");
   shoot = loadSound("audio/laser.wav");
 
-  var port = process.env.PORT || 8080;
+  var port = 8080;
 
   socket = io.connect('http://localhost:' + port); 
   // Once server acknowledges, create new player instance

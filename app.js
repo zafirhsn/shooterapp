@@ -4,7 +4,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
 
-var port = 8080;
+var port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
@@ -26,7 +26,6 @@ app.get('/death/:userid', (req, res) => {
   const data = req.params;
   res.render('death', { score: playerArray[data.userid].score });
 });
-
 
 // Keep track of all players on server
 var playerArray = {};

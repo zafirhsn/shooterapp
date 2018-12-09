@@ -4,6 +4,8 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
 
+var port = process.env.PORT || 8080;
+
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
@@ -121,8 +123,8 @@ io.on('connection', (socket)=> {
 });
 
 
-http.listen(3000, ()=> {
-  console.log("App is listening on port 3000...");
+http.listen(port, ()=> {
+  console.log("App is listening on http://locahost:" + port + '...');
 });
 
 

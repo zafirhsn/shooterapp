@@ -16,7 +16,8 @@ function setup() {
   gotHit = loadSound("audio/hit.wav");
   shoot = loadSound("audio/laser.wav");
 
-  socket = io.connect(window.location.hostname); 
+  let serverLocation = "http://localhost:3000" || window.location.hostname
+  socket = io.connect(serverLocation); 
   // Once server acknowledges, create new player instance
 
   // Server gives us list of all players already playing on join, we will use this to create new client's own player, and to catch the client up on all players already on server

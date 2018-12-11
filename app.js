@@ -4,7 +4,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
 
-var port = process.env.PORT || 3000;
+var port = 3000 || process.env.PORT;
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
@@ -123,7 +123,7 @@ io.on('connection', (socket)=> {
 
 
 http.listen(port, ()=> {
-  console.log("App is listening on http://locahost:" + port + '...');
+  console.log("App is listening on http://localhost:" + port + '...');
 });
 
 

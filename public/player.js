@@ -8,25 +8,47 @@ function Player(xpos, ypos) {
   this.lives = 5;
   this.color = Player.prototype.colorBank[Math.floor(Math.random() * Player.prototype.colorBank.length)];
   this.bullets = [];
+  this.xMovementSpeed = 0;
+  this.yMovementSpeed = 0;
 
   this.update = function() {
     // player movement logic
+
+    //every frame, always add xSpeed to xpos and ySpeed to yPos
+    this.xpos = this.xpos + this.xMovementSpeed;
+    this.ypos = this.ypos + this.yMovementSpeed;
+
+
     //player can move either with left right up down, or w a s d
-    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
-      this.xpos -= 10;
-      // return true;
-    }
-    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
-      this.xpos += 10;
-      // return true;
-    }
-    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
-      this.ypos += 10;
-      // return true;
-    }
-    if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
-      this.ypos -= 10;
-      // return true;
+    if(keyIsPressed){
+      if (keyCode == LEFT_ARROW || key == 'a'){
+        this.xMovementSpeed = -10;
+      };
+
+      if (keyCode == RIGHT_ARROW || key == 'd'){
+        this.xMovementSpeed = 10;
+      };
+
+      if (keyCode == UP_ARROW || key == 'w'){
+        this.yMovementSpeed = -10;
+      };
+
+      if (keyCode == DOWN_ARROW || key == 's'){
+        this.yMovementSpeed = 10;
+      };
+    } else {
+      //add friction variable to slow down player if keyReleased
+      let deceleration = 0.8;
+      this.xMovementSpeed *= deceleration;
+      this.yMovementSpeed *= deceleration;
+
+      //if speed is almost 0, set to 0 (so doesn't go to infinity)
+      if (this.xMovementSpeed < 0.0001 && this.xMovementSpeed > -0.0001){
+        this.xMovementSpeed = 0;
+      }
+      if (this.yMovementSpeed < 0.0001 && this.yMovementSpeed > -0.0001){
+        this.yMovementSpeed = 0;
+      }
     }
 
     // ----------------------

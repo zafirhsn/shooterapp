@@ -9,13 +9,14 @@ var port = 3000 || process.env.PORT;
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
-// var exists = fs.existsSync('public/database.json');
-// var data;
-// if (exists) {
-//   console.log('Loading database');
-//   var txt = fs.readFileSync('public/database.json', 'utf-8');
-//   data = JSON.parse(txt);
-// }
+let exists = fs.existsSync('public/scores.json');
+let scores;
+if (exists) {
+  console.log('Loading database of scores');
+  var txt = fs.readFileSync('public/scores.json', 'utf-8');
+  scores = JSON.parse(txt);
+  console.log("Database of scores: "+ scores)
+}
 
 app.get('/', (req, res) => {
   res.render('index');
@@ -24,7 +25,7 @@ app.get('/', (req, res) => {
 
 app.get('/death/:userid', (req, res) => {
   const data = req.params;
-  res.render('death', { score: playerArray[data.userid].score });
+  res.render('death', { score: scores[data.userid] });
 });
 
 // Keep track of all players on server
@@ -40,6 +41,7 @@ io.on('connection', (socket)=> {
   socket.on('newUser', (user)=> {
     let userid = socket.id;
     playerArray[userid] = user;
+    scores[userid] = playerArray[userid].score;
     // console.log(playerArray[userid]);
     socket.broadcast.emit('addPlayer', user, userid);
     console.log("CURRENT NUMBER OF PLAYERS: " + Object.keys(playerArray).length);
@@ -79,6 +81,8 @@ io.on('connection', (socket)=> {
   socket.on('point', (data)=> {
     let userid = socket.id;
     playerArray[userid].score++;
+    scores[userid] = playerArray[userid].score;
+    console.log("SCORES UPDATED!")
     
     socket.broadcast.emit('point', userid);
   });
